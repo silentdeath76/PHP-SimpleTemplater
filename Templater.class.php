@@ -4,7 +4,7 @@
 		const SIMPLE_ARRAY = 1;
 		const ASSOCIATIVE_ARRAY = 2;
 
-		private $assets = [];
+		private $assign = [];
 		private $_error = [];
 		private $templateData = null;
 		private $charLimiter;
@@ -28,7 +28,7 @@
 			}
 		}
 
-		public function assets ($in, $to = [], $type = self::SIMPLE_ARRAY) {
+		public function assign ($in, $to = [], $type = self::SIMPLE_ARRAY) {
 			if ( !is_array( $in ) or count( $in ) == 0 ) {
 				if(is_string($in) and is_string($to)) {
 					$this->fill($in, $to);
@@ -37,7 +37,7 @@
 				}
 			} else if ( !is_array( $to ) ) {
 				if ($type === self::ASSOCIATIVE_ARRAY) {
-					$this->assets = array_merge($this->assets, $in);
+					$this->assign = array_merge($this->assign, $in);
 				} else {
 					$this->_error[] = "Error, second argument don't is array.";
 				}
@@ -58,7 +58,9 @@
 			$temp = [];
 			$limiter = explode("|", $this->charLimiter);
 
-			foreach ($this->assets as $key => $value) {
+			$this->callFunction();
+
+			foreach ($this->assign as $key => $value) {
 				$temp[sprintf("%s%s%s", $limiter[0], strtoupper($key), $limiter[1])] = $value;
 			}
 
@@ -67,9 +69,23 @@
 		}
 
 
+		private function callFunction () {
+			preg_match_all('/(@)?{{(\w+\(.*?\))/i', $this->templateData, $out);
+			
+			$n = count($out[0]);
+			for($i = 0; $i < $n; $i++) {
+				if(substr($out[0][$i], 0, 1) != "@") {
+					$result = eval("return " . $out[2][$i] . ";");
+
+					$this->templateData = str_replace($out[0][$i] . "}}", $result, $this->templateData);
+				}
+			}
+
+			$this->templateData = str_replace("@{{", "{{", $this->templateData);
+		}
 
 		private function fill ($in, $to) {
-			$this->assets[$in] = $to;
+			$this->assign[$in] = $to;
 		}
 
 		private function showErrors () {
