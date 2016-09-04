@@ -17,14 +17,21 @@ $templater->loadFromStr("<!DOCTYPE html>
 	</body>
 		{MEDIA_BEFORE}
 	</html>");
-$templater->loadFromFile("template.html"); 					// load template data from file
-$templater->assign( ["LANG", "charset"], ["en", "UTF-8"] ); 			// or
-$templater->assign( "title", "Document title" );				// or
+$templater->loadFromFile("template.html"); // load template data from file
+// replace
+$templater->assign( ["LANG", "charset"], ["en", "UTF-8"] );
+
+// or
+$templater->assign( "title", "Document title" );
+
+// or
 $templater->assign( [
     "media_after" => null,
 	"media_before" => null
-], null, Templater::ASSOCIATIVE_ARRAY);						// or
-$templater->assign( "content", "<p>Hello world</p>" );				// or
+], null, Templater::ASSOCIATIVE_ARRAY);
+
+// or
+$templater->assign( "content", "<p>Hello world</p>" );
 
 echo $templater->toString();
 
